@@ -6,7 +6,8 @@ import { MenuCard, MenuItem } from "@/components/MenuCard";
 import { Cart, CartItem } from "@/components/Cart";
 import { CheckoutForm } from "@/components/CheckoutForm";
 import { menuData, categories } from "@/data/menuData";
-import { Search, ChefHat } from "lucide-react";
+import { Search, ChefHat, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
@@ -79,11 +80,19 @@ const Index = () => {
       {/* Header */}
       <header className="bg-card border-b border-border shadow-card">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <ChefHat className="h-8 w-8 text-food-primary" />
-            <h1 className="text-3xl font-bold bg-gradient-warm bg-clip-text text-transparent">
-              Restaurante Delícia
-            </h1>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <ChefHat className="h-8 w-8 text-food-primary" />
+              <h1 className="text-3xl font-bold bg-gradient-warm bg-clip-text text-transparent">
+                Restaurante Delícia
+              </h1>
+            </div>
+            <Link to="/admin">
+              <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Admin
+              </Button>
+            </Link>
           </div>
           
           <div className="max-w-md mx-auto">
