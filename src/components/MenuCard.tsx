@@ -1,7 +1,15 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Minus, Plus } from "lucide-react";
+import { ExtrasDialog } from "./ExtrasDialog";
+
+export interface MenuExtra {
+  id: string;
+  name: string;
+  price: number;
+}
 
 export interface MenuItem {
   id: string;
@@ -10,16 +18,30 @@ export interface MenuItem {
   price: number;
   image: string;
   category: string;
+  extras?: MenuExtra[];
 }
 
 interface MenuCardProps {
   item: MenuItem;
   quantity: number;
-  onAdd: () => void;
+  onAdd: (extras?: string[]) => void;
   onRemove: () => void;
 }
 
 export function MenuCard({ item, quantity, onAdd, onRemove }: MenuCardProps) {
+  const [showExtrasDialog, setShowExtrasDialog] = useState(false);
+
+  const handleAddClick = () => {
+    if (item.extras && item.extras.length > 0) {
+      setShowExtrasDialog(true);
+    } else {
+      onAdd();
+    }
+  };
+
+  const handleExtrasConfirm = (extras: string[]) => {
+    onAdd(extras);
+  };
   return (
     <Card className="overflow-hidden hover:shadow-food transition-all duration-300 hover:scale-[1.02] bg-card border-border group">
       <div className="relative overflow-hidden">
@@ -62,7 +84,7 @@ export function MenuCard({ item, quantity, onAdd, onRemove }: MenuCardProps) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={onAdd}
+                onClick={() => onAdd()}
                 className="h-8 w-8 p-0 border-food-primary text-food-primary hover:bg-food-primary hover:text-primary-foreground"
               >
                 <Plus className="h-3 w-3" />
@@ -70,15 +92,22 @@ export function MenuCard({ item, quantity, onAdd, onRemove }: MenuCardProps) {
             </div>
           ) : (
             <Button
-              onClick={onAdd}
+              onClick={handleAddClick}
               className="bg-gradient-warm hover:shadow-glow transition-all duration-300 border-0"
               size="sm"
             >
               <Plus className="h-4 w-4 mr-1" />
-              Adicionar
+              {item.extras && item.extras.length > 0 ? "Personalizar" : "Adicionar"}
             </Button>
           )}
         </div>
+
+        <ExtrasDialog
+          item={item}
+          isOpen={showExtrasDialog}
+          onClose={() => setShowExtrasDialog(false)}
+          onConfirm={handleExtrasConfirm}
+        />
       </CardContent>
     </Card>
   );
