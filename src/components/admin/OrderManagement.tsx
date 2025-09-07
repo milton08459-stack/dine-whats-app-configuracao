@@ -76,6 +76,8 @@ export function OrderManagement() {
   });
 
   const updateOrderStatus = (orderId: string, newStatus: Order["status"]) => {
+    const order = orders.find(o => o.id === orderId);
+    
     setOrders(prev => prev.map(order => 
       order.id === orderId ? { ...order, status: newStatus } : order
     ));
@@ -84,6 +86,19 @@ export function OrderManagement() {
       title: "Status atualizado",
       description: `Pedido #${orderId} marcado como ${statusConfig[newStatus].label.toLowerCase()}`,
     });
+
+    // Auto print when status changes to configured statuses
+    if (order) {
+      const printerConfig = JSON.parse(localStorage.getItem('printerConfig') || '{}');
+      if (printerConfig.autoprint && printerConfig.printOnStatus?.includes(newStatus)) {
+        // Use the global printOrder function if available
+        if ((window as any).printOrder) {
+          setTimeout(() => {
+            (window as any).printOrder({ ...order, status: newStatus });
+          }, 500);
+        }
+      }
+    }
   };
 
   const sendWhatsAppMessage = (order: Order) => {
