@@ -22,17 +22,21 @@ const Index = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const addToCart = (item: MenuItem) => {
+  const addToCart = (item: MenuItem, extras?: string[]) => {
     setCartItems((prev) => {
-      const existing = prev.find((cartItem) => cartItem.id === item.id);
+      const existing = prev.find((cartItem) => 
+        cartItem.id === item.id && 
+        JSON.stringify(cartItem.selectedExtras || []) === JSON.stringify(extras || [])
+      );
       if (existing) {
         return prev.map((cartItem) =>
-          cartItem.id === item.id
+          cartItem.id === item.id && 
+          JSON.stringify(cartItem.selectedExtras || []) === JSON.stringify(extras || [])
             ? { ...cartItem, quantity: cartItem.quantity + 1 }
             : cartItem
         );
       }
-      return [...prev, { ...item, quantity: 1 }];
+      return [...prev, { ...item, quantity: 1, selectedExtras: extras }];
     });
   };
 
@@ -138,7 +142,7 @@ const Index = () => {
                   key={item.id}
                   item={item}
                   quantity={getItemQuantity(item.id)}
-                  onAdd={() => addToCart(item)}
+                  onAdd={(extras) => addToCart(item, extras)}
                   onRemove={() => removeFromCart(item.id)}
                 />
               ))}

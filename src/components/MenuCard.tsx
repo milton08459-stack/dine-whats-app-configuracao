@@ -84,7 +84,7 @@ export function MenuCard({ item, quantity, onAdd, onRemove }: MenuCardProps) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onAdd()}
+                onClick={handleAddClick}
                 className="h-8 w-8 p-0 border-food-primary text-food-primary hover:bg-food-primary hover:text-primary-foreground"
               >
                 <Plus className="h-3 w-3" />

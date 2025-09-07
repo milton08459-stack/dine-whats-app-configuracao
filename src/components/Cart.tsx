@@ -6,6 +6,7 @@ import { MenuItem } from "./MenuCard";
 
 export interface CartItem extends MenuItem {
   quantity: number;
+  selectedExtras?: string[];
 }
 
 interface CartProps {
@@ -14,8 +15,20 @@ interface CartProps {
   onCheckout: () => void;
 }
 
+const calculateItemPrice = (item: CartItem) => {
+  let basePrice = item.price;
+  if (item.selectedExtras && item.extras) {
+    const extrasPrice = item.selectedExtras.reduce((total, extraId) => {
+      const extra = item.extras?.find(e => e.id === extraId);
+      return total + (extra?.price || 0);
+    }, 0);
+    basePrice += extrasPrice;
+  }
+  return basePrice;
+};
+
 export function Cart({ items, onRemoveItem, onCheckout }: CartProps) {
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + calculateItemPrice(item) * item.quantity, 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   if (items.length === 0) {
@@ -43,14 +56,27 @@ export function Cart({ items, onRemoveItem, onCheckout }: CartProps) {
           <div key={item.id} className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0">
               <h4 className="font-medium text-sm text-foreground">{item.name}</h4>
+              {item.selectedExtras && item.selectedExtras.length > 0 && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  {item.selectedExtras.map(extraId => {
+                    const extra = item.extras?.find(e => e.id === extraId);
+                    return extra ? (
+                      <div key={extraId} className="flex justify-between">
+                        <span>+ {extra.name}</span>
+                        <span>R$ {extra.price.toFixed(2)}</span>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              )}
               <p className="text-xs text-muted-foreground">
-                {item.quantity}x R$ {item.price.toFixed(2)}
+                {item.quantity}x R$ {calculateItemPrice(item).toFixed(2)}
               </p>
             </div>
             
             <div className="flex items-center gap-2">
               <span className="font-semibold text-food-primary">
-                R$ {(item.price * item.quantity).toFixed(2)}
+                R$ {(calculateItemPrice(item) * item.quantity).toFixed(2)}
               </span>
               
               <Button
