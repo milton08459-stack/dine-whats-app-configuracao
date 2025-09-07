@@ -12,6 +12,7 @@ interface RestaurantConfig {
   phone: string;
   address: string;
   description: string;
+  heroImage: string;
   deliveryFee: number;
   minOrderValue: number;
   openingHours: {
@@ -30,6 +31,7 @@ const defaultConfig: RestaurantConfig = {
   phone: "(11) 99845-4270",
   address: "Rua das Delícias, 123 - Centro - São Paulo - SP",
   description: "O melhor da culinária artesanal com ingredientes frescos e selecionados.",
+  heroImage: "/src/assets/restaurant-hero.jpg",
   deliveryFee: 5.00,
   minOrderValue: 25.00,
   openingHours: {
@@ -131,6 +133,28 @@ export function RestaurantSettings() {
               onChange={(e) => setConfig(prev => ({ ...prev, description: e.target.value }))}
               placeholder="Descrição do restaurante"
             />
+          </div>
+          
+          <div>
+            <Label htmlFor="heroImage" className="text-foreground">Imagem do Restaurante (URL)</Label>
+            <Input
+              id="heroImage"
+              value={config.heroImage}
+              onChange={(e) => setConfig(prev => ({ ...prev, heroImage: e.target.value }))}
+              placeholder="URL da imagem do restaurante"
+            />
+            {config.heroImage && (
+              <div className="mt-2">
+                <img 
+                  src={config.heroImage} 
+                  alt="Preview da imagem do restaurante" 
+                  className="w-full max-w-sm h-32 object-cover rounded-lg border border-border"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
