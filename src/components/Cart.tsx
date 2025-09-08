@@ -7,6 +7,7 @@ import { MenuItem } from "./MenuCard";
 export interface CartItem extends MenuItem {
   quantity: number;
   selectedExtras?: string[];
+  observations?: string;
 }
 
 interface CartProps {
@@ -52,27 +53,34 @@ export function Cart({ items, onRemoveItem, onCheckout }: CartProps) {
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-sm text-foreground">{item.name}</h4>
-              {item.selectedExtras && item.selectedExtras.length > 0 && (
-                <div className="text-xs text-muted-foreground mt-1">
-                  {item.selectedExtras.map(extraId => {
-                    const extra = item.extras?.find(e => e.id === extraId);
-                    return extra ? (
-                      <div key={extraId} className="flex justify-between">
-                        <span>+ {extra.name}</span>
-                        <span>R$ {extra.price.toFixed(2)}</span>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">
-                {item.quantity}x R$ {calculateItemPrice(item).toFixed(2)}
-              </p>
-            </div>
+        {items.map((item, index) => {
+          const itemKey = `${item.id}-${index}-${(item.selectedExtras || []).join('|')}-${item.observations || ''}`;
+          return (
+            <div key={itemKey} className="flex items-center justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-sm text-foreground">{item.name}</h4>
+                {item.selectedExtras && item.selectedExtras.length > 0 && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {item.selectedExtras.map(extraId => {
+                      const extra = item.extras?.find(e => e.id === extraId);
+                      return extra ? (
+                        <div key={extraId} className="flex justify-between">
+                          <span>+ {extra.name}</span>
+                          <span>R$ {extra.price.toFixed(2)}</span>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                )}
+                {item.observations && (
+                  <div className="text-xs text-muted-foreground mt-1 italic">
+                    "{item.observations}"
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  {item.quantity}x R$ {calculateItemPrice(item).toFixed(2)}
+                </p>
+              </div>
             
             <div className="flex items-center gap-2">
               <span className="font-semibold text-food-primary">
@@ -82,15 +90,15 @@ export function Cart({ items, onRemoveItem, onCheckout }: CartProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onRemoveItem(item.id)}
+                onClick={() => onRemoveItem(itemKey)}
                 className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
             </div>
           </div>
-        ))}
-        
+          );
+        })}
         <Separator />
         
         <div className="flex items-center justify-between font-semibold text-lg">

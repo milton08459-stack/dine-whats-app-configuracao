@@ -24,7 +24,7 @@ export interface MenuItem {
 interface MenuCardProps {
   item: MenuItem;
   quantity: number;
-  onAdd: (extras?: string[]) => void;
+  onAdd: (extras?: string[], observations?: string) => void;
   onRemove: () => void;
 }
 
@@ -39,8 +39,8 @@ export function MenuCard({ item, quantity, onAdd, onRemove }: MenuCardProps) {
     }
   };
 
-  const handleExtrasConfirm = (extras: string[]) => {
-    onAdd(extras);
+  const handleExtrasConfirm = (extras: string[], observations?: string) => {
+    onAdd(extras, observations);
   };
   return (
     <Card className="overflow-hidden hover:shadow-food transition-all duration-300 hover:scale-[1.02] bg-card border-border group">

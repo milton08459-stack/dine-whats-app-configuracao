@@ -41,21 +41,10 @@ const Index = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const addToCart = (item: MenuItem, extras?: string[]) => {
+  const addToCart = (item: MenuItem, extras?: string[], observations?: string) => {
     setCartItems((prev) => {
-      const existing = prev.find((cartItem) => 
-        cartItem.id === item.id && 
-        JSON.stringify(cartItem.selectedExtras || []) === JSON.stringify(extras || [])
-      );
-      if (existing) {
-        return prev.map((cartItem) =>
-          cartItem.id === item.id && 
-          JSON.stringify(cartItem.selectedExtras || []) === JSON.stringify(extras || [])
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
-        );
-      }
-      return [...prev, { ...item, quantity: 1, selectedExtras: extras }];
+      // Cada item com diferentes extras ou observações é tratado como item separado
+      return [...prev, { ...item, quantity: 1, selectedExtras: extras, observations }];
     });
   };
 
@@ -73,8 +62,11 @@ const Index = () => {
     });
   };
 
-  const removeItemFromCart = (itemId: string) => {
-    setCartItems((prev) => prev.filter((cartItem) => cartItem.id !== itemId));
+  const removeItemFromCart = (itemKey: string) => {
+    setCartItems((prev) => prev.filter((_, index) => {
+      const key = `${prev[index].id}-${index}-${(prev[index].selectedExtras || []).join('|')}-${prev[index].observations || ''}`;
+      return key !== itemKey;
+    }));
   };
 
   const clearCart = () => {
@@ -176,7 +168,7 @@ const Index = () => {
                   key={item.id}
                   item={item}
                   quantity={getItemQuantity(item.id)}
-                  onAdd={(extras) => addToCart(item, extras)}
+                  onAdd={(extras, observations) => addToCart(item, extras, observations)}
                   onRemove={() => removeFromCart(item.id)}
                 />
               ))}

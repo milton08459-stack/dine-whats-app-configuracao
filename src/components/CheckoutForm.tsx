@@ -54,6 +54,9 @@ export function CheckoutForm({ items, onBack, onClearCart }: CheckoutFormProps) 
           }
         });
       }
+      if (item.observations) {
+        message += `   📝 Obs: ${item.observations}\n`;
+      }
     });
     
     message += `\n💰 *TOTAL: R$ ${total.toFixed(2)}*\n`;
@@ -160,9 +163,9 @@ export function CheckoutForm({ items, onBack, onClearCart }: CheckoutFormProps) 
           <div className="bg-accent/50 p-4 rounded-lg border border-border">
             <h3 className="font-semibold text-foreground mb-3">Resumo do Pedido</h3>
             <div className="space-y-2">
-              {items.map((item) => {
+              {items.map((item, index) => {
                 const unit = calculateItemUnitPrice(item);
-                const key = `${item.id}-${(item.selectedExtras || []).join('|')}`;
+                const key = `${item.id}-${index}-${(item.selectedExtras || []).join('|')}-${item.observations || ''}`;
                 return (
                   <div key={key} className="text-sm">
                     <div className="flex justify-between">
@@ -184,6 +187,11 @@ export function CheckoutForm({ items, onBack, onClearCart }: CheckoutFormProps) 
                             </div>
                           ) : null;
                         })}
+                      </div>
+                    )}
+                    {item.observations && (
+                      <div className="mt-1 text-xs text-muted-foreground italic">
+                        "{item.observations}"
                       </div>
                     )}
                   </div>

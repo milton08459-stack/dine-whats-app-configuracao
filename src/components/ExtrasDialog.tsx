@@ -2,17 +2,20 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { MenuItem, MenuExtra } from "./MenuCard";
 
 interface ExtrasDialogProps {
   item: MenuItem;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (extras: string[]) => void;
+  onConfirm: (extras: string[], observations?: string) => void;
 }
 
 export function ExtrasDialog({ item, isOpen, onClose, onConfirm }: ExtrasDialogProps) {
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
+  const [observations, setObservations] = useState<string>("");
 
   const handleExtraChange = (extraId: string, checked: boolean) => {
     if (checked) {
@@ -23,13 +26,15 @@ export function ExtrasDialog({ item, isOpen, onClose, onConfirm }: ExtrasDialogP
   };
 
   const handleConfirm = () => {
-    onConfirm(selectedExtras);
+    onConfirm(selectedExtras, observations);
     setSelectedExtras([]);
+    setObservations("");
     onClose();
   };
 
   const handleCancel = () => {
     setSelectedExtras([]);
+    setObservations("");
     onClose();
   };
 
@@ -79,6 +84,22 @@ export function ExtrasDialog({ item, isOpen, onClose, onConfirm }: ExtrasDialogP
                 </span>
               </div>
             ))}
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="observations" className="text-sm font-medium text-foreground">
+                Observações do item (opcional)
+              </Label>
+              <Textarea
+                id="observations"
+                value={observations}
+                onChange={(e) => setObservations(e.target.value)}
+                placeholder="Ex: sem cebola, ponto da carne bem passado..."
+                className="mt-1 border-border focus:ring-food-primary"
+                rows={2}
+              />
+            </div>
           </div>
 
           <div className="border-t pt-4">
