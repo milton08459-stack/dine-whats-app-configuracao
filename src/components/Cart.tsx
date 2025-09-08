@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -29,8 +30,11 @@ const calculateItemPrice = (item: CartItem) => {
 };
 
 export function Cart({ items, onRemoveItem, onCheckout }: CartProps) {
-  const total = items.reduce((sum, item) => sum + calculateItemPrice(item) * item.quantity, 0);
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const { total, itemCount } = useMemo(() => {
+    const total = items.reduce((sum, item) => sum + calculateItemPrice(item) * item.quantity, 0);
+    const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+    return { total, itemCount };
+  }, [items]);
 
   if (items.length === 0) {
     return (

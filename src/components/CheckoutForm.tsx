@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,7 +23,7 @@ export function CheckoutForm({ items, onBack, onClearCart }: CheckoutFormProps) 
     observations: ""
   });
 
-  const calculateItemUnitPrice = (item: CartItem) => {
+  const calculateItemUnitPrice = useCallback((item: CartItem) => {
     let base = item.price;
     if (item.selectedExtras && item.extras) {
       base += item.selectedExtras.reduce((sum, id) => {
@@ -32,11 +32,13 @@ export function CheckoutForm({ items, onBack, onClearCart }: CheckoutFormProps) 
       }, 0);
     }
     return base;
-  };
+  }, []);
 
-  const total = items.reduce((sum, item) => sum + calculateItemUnitPrice(item) * item.quantity, 0);
+  const total = useMemo(() => {
+    return items.reduce((sum, item) => sum + calculateItemUnitPrice(item) * item.quantity, 0);
+  }, [items, calculateItemUnitPrice]);
 
-  const generateWhatsAppMessage = () => {
+  const generateWhatsAppMessage = useCallback(() => {
     let message = "🍽️ *NOVO PEDIDO* 🍽️\n\n";
     message += `👤 *Cliente:* ${formData.name}\n`;
     message += `📱 *Telefone:* ${formData.phone}\n`;
@@ -66,9 +68,9 @@ export function CheckoutForm({ items, onBack, onClearCart }: CheckoutFormProps) 
     }
     
     return encodeURIComponent(message);
-  };
+  }, [formData, items, total, calculateItemUnitPrice]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name || !formData.phone || !formData.address) {
@@ -91,7 +93,7 @@ export function CheckoutForm({ items, onBack, onClearCart }: CheckoutFormProps) 
     });
     
     onClearCart();
-  };
+  }, [formData, generateWhatsAppMessage, toast, onClearCart]);
 
   return (
     <Card className="max-w-2xl mx-auto">

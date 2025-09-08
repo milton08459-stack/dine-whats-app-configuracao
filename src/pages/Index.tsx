@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -34,21 +34,23 @@ const Index = () => {
     }
   }, []);
 
-  const filteredMenu = menuData.filter((item) => {
-    const matchesCategory = selectedCategory === "Todos" || item.category === selectedCategory;
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const filteredMenu = useMemo(() => {
+    return menuData.filter((item) => {
+      const matchesCategory = selectedCategory === "Todos" || item.category === selectedCategory;
+      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.description.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchTerm]);
 
-  const addToCart = (item: MenuItem, extras?: string[], observations?: string) => {
+  const addToCart = useCallback((item: MenuItem, extras?: string[], observations?: string) => {
     setCartItems((prev) => {
       // Cada item com diferentes extras ou observações é tratado como item separado
       return [...prev, { ...item, quantity: 1, selectedExtras: extras, observations }];
     });
-  };
+  }, []);
 
-  const removeFromCart = (itemId: string) => {
+  const removeFromCart = useCallback((itemId: string) => {
     setCartItems((prev) => {
       const existing = prev.find((cartItem) => cartItem.id === itemId);
       if (existing && existing.quantity > 1) {
@@ -60,23 +62,23 @@ const Index = () => {
       }
       return prev.filter((cartItem) => cartItem.id !== itemId);
     });
-  };
+  }, []);
 
-  const removeItemFromCart = (itemKey: string) => {
+  const removeItemFromCart = useCallback((itemKey: string) => {
     setCartItems((prev) => prev.filter((_, index) => {
       const key = `${prev[index].id}-${index}-${(prev[index].selectedExtras || []).join('|')}-${prev[index].observations || ''}`;
       return key !== itemKey;
     }));
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCartItems([]);
     setShowCheckout(false);
-  };
+  }, []);
 
-  const getItemQuantity = (itemId: string) => {
+  const getItemQuantity = useCallback((itemId: string) => {
     return cartItems.find((item) => item.id === itemId)?.quantity || 0;
-  };
+  }, [cartItems]);
 
   if (showCheckout) {
     return (
