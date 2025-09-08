@@ -23,7 +23,18 @@ export function CheckoutForm({ items, onBack, onClearCart }: CheckoutFormProps) 
     observations: ""
   });
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const calculateItemUnitPrice = (item: CartItem) => {
+    let base = item.price;
+    if (item.selectedExtras && item.extras) {
+      base += item.selectedExtras.reduce((sum, id) => {
+        const ex = item.extras?.find((e) => e.id === id);
+        return sum + (ex?.price || 0);
+      }, 0);
+    }
+    return base;
+  };
+
+  const total = items.reduce((sum, item) => sum + calculateItemUnitPrice(item) * item.quantity, 0);
 
   const generateWhatsAppMessage = () => {
     let message = "🍽️ *NOVO PEDIDO* 🍽️\n\n";
@@ -33,7 +44,16 @@ export function CheckoutForm({ items, onBack, onClearCart }: CheckoutFormProps) 
     
     message += "*📋 ITENS DO PEDIDO:*\n";
     items.forEach((item) => {
-      message += `• ${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}\n`;
+      const unit = calculateItemUnitPrice(item);
+      message += `• ${item.quantity}x ${item.name} - R$ ${(unit * item.quantity).toFixed(2)}\n`;
+      if (item.selectedExtras && item.selectedExtras.length > 0) {
+        item.selectedExtras.forEach((extraId) => {
+          const extra = item.extras?.find((e) => e.id === extraId);
+          if (extra) {
+            message += `   ◦ + ${extra.name}: R$ ${extra.price.toFixed(2)}\n`;
+          }
+        });
+      }
     });
     
     message += `\n💰 *TOTAL: R$ ${total.toFixed(2)}*\n`;
@@ -140,16 +160,35 @@ export function CheckoutForm({ items, onBack, onClearCart }: CheckoutFormProps) 
           <div className="bg-accent/50 p-4 rounded-lg border border-border">
             <h3 className="font-semibold text-foreground mb-3">Resumo do Pedido</h3>
             <div className="space-y-2">
-              {items.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {item.quantity}x {item.name}
-                  </span>
-                  <span className="text-foreground">
-                    R$ {(item.price * item.quantity).toFixed(2)}
-                  </span>
-                </div>
-              ))}
+              {items.map((item) => {
+                const unit = calculateItemUnitPrice(item);
+                const key = `${item.id}-${(item.selectedExtras || []).join('|')}`;
+                return (
+                  <div key={key} className="text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        {item.quantity}x {item.name}
+                      </span>
+                      <span className="text-foreground">
+                        R$ {(unit * item.quantity).toFixed(2)}
+                      </span>
+                    </div>
+                    {item.selectedExtras && item.selectedExtras.length > 0 && (
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {item.selectedExtras.map((extraId) => {
+                          const extra = item.extras?.find((e) => e.id === extraId);
+                          return extra ? (
+                            <div key={extraId} className="flex justify-between">
+                              <span>+ {extra.name}</span>
+                              <span>R$ {extra.price.toFixed(2)}</span>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             <div className="border-t border-border mt-3 pt-3">
               <div className="flex justify-between font-semibold text-lg">
