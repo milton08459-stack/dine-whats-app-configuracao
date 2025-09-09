@@ -115,12 +115,20 @@ const Index = () => {
               {restaurantConfig.description}
             </p>
           </div>
-          <Link to="/admin">
-            <Button variant="ghost" size="sm" className="flex items-center gap-2 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm">
-              <Settings className="h-4 w-4" />
-              Admin
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link to="/pedidos">
+              <Button variant="ghost" size="sm" className="flex items-center gap-2 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm">
+                <ChefHat className="h-4 w-4" />
+                Fazer Pedido
+              </Button>
+            </Link>
+            <Link to="/admin">
+              <Button variant="ghost" size="sm" className="flex items-center gap-2 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm">
+                <Settings className="h-4 w-4" />
+                Admin
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
